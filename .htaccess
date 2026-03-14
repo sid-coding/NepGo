@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Hidden Admin Entry: http://localhost/NepGo/admin-dashboard
+RewriteRule ^admin-dashboard$ admin_dashboard.php [L]
+
+# Contributor Dashboard: http://localhost/NepGo/user-dashboard
+RewriteRule ^user-dashboard$ user_dashboard.php [L]
+
+# Standard User Routes
+RewriteRule ^login$ login.php [L]
+RewriteRule ^signup$ signup.php [L]
