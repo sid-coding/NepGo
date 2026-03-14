@@ -127,7 +127,7 @@ if ($isAdmin) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.7">
+    <link rel="stylesheet" href="style.css?v=2.1">
     <script>
         function toggleNewBusFields() {
             const select = document.getElementById('bus_id');
@@ -136,45 +136,45 @@ if ($isAdmin) {
         }
     </script>
 </head>
-<body style="<?= !$isAdmin ? 'background-color: #111827;' : '' ?>">
+<body style="<?= !$isAdmin ? 'background-color: #0f172a;' : '' ?>">
 
 <?php if (!$isAdmin): ?>
     <!-- HIDDEN LOGIN FORM -->
-    <div class="content-container" style="max-width: 400px; margin-top: 10rem;">
+    <div class="content-container" style="max-width: 400px; margin-top: 10rem; padding: 0;">
         <div class="section-header"><h1 style="color: white;">Master Admin Access</h1></div>
         <?php if ($error): ?><div class="status-alert alert-danger"><?= $error ?></div><?php endif; ?>
-        <div class="management-area-box" style="padding: 2.5rem; background: #1F2937; border: 1px solid #374151;">
+        <div class="management-area-box" style="padding: 2.5rem; background: #1e293b; border: 1px solid #334155;">
             <form method="POST">
                 <input type="hidden" name="admin_login" value="1">
                 <div class="form-field-group">
-                    <label style="color: #D1D5DB;">Admin Email</label>
-                    <input type="email" name="email" class="form-input-control" placeholder="admin@nepalgo.com" required autofocus style="background: #374151; border-color: #4B5563; color: white;">
+                    <label style="color: #94a3b8;">Admin Email</label>
+                    <input type="email" name="email" class="form-input-control" placeholder="admin@nepalgo.com" required autofocus style="background: #0f172a; border-color: #334155; color: white;">
                 </div>
                 <div class="form-field-group">
-                    <label style="color: #D1D5DB;">Password</label>
-                    <input type="password" name="password" class="form-input-control" required style="background: #374151; border-color: #4B5563; color: white;">
+                    <label style="color: #94a3b8;">Password</label>
+                    <input type="password" name="password" class="form-input-control" required style="background: #0f172a; border-color: #334155; color: white;">
                 </div>
-                <button type="submit" class="action-btn primary-btn" style="width: 100%; margin-top: 1rem; background: #4F46E5;">Login</button>
+                <button type="submit" class="action-btn primary-btn" style="width: 100%; margin-top: 1rem;">Login</button>
             </form>
         </div>
-        <p style="text-align: center; margin-top: 2rem;"><a href="index.php" style="color: #6B7280; font-size: 0.9rem;">&larr; Back to Website</a></p>
+        <p style="text-align: center; margin-top: 2rem;"><a href="index.php" style="color: #64748b; font-size: 0.95rem;">&larr; Back to Website</a></p>
     </div>
 <?php else: ?>
     <?php include 'navbar.php'; ?>
     <div class="content-container">
         <div class="section-header">
             <h1>Master Admin Dashboard</h1>
-            <p>Welcome back, Administrator.</p>
-            <div style="margin-top: 1rem;">
-                <a href="logout.php" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>
+            <p>Managing NepalGo's transit data and network suggestions.</p>
+            <div style="margin-top: 1.5rem;">
+                <a href="logout.php" class="action-btn" style="background-color: #ef4444; color: white; border-radius: var(--radius-md);">Logout</a>
             </div>
         </div>
 
         <?php if ($msg): ?><div class="status-alert alert-<?= $msgType ?>"><?= $msg ?></div><?php endif; ?>
 
         <!-- 1. ADD NEW ROUTE -->
-        <div class="management-area-box" style="margin-bottom: 4rem;">
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Add New Route Directly</h2>
+        <div class="management-area-box" style="margin-bottom: 4rem; max-width: 1000px;">
+            <h2 style="margin-bottom: 2rem; font-size: 1.75rem; font-weight: 800; color: var(--primary-color);">Publish New Route</h2>
             <form method="POST">
                 <input type="hidden" name="add_route" value="1">
                 <div class="form-field-group">
@@ -191,7 +191,7 @@ if ($isAdmin) {
                     </select>
                 </div>
 
-                <div id="new_bus_fields" style="display: none; background: #f9fafb; padding: 1.5rem; border-radius: 4px; border: 1px dashed #ccc; margin-bottom: 1.5rem;">
+                <div id="new_bus_fields" style="display: none; background: #f8fafc; padding: 2rem; border-radius: var(--radius-md); border: 2px dashed var(--border-color); margin-bottom: 2rem;">
                     <div class="admin-form-grid">
                         <div class="form-field-group">
                             <label>Bus Number</label>
@@ -206,10 +206,10 @@ if ($isAdmin) {
 
                 <div class="form-field-group">
                     <label>Route Name (Optional)</label>
-                    <input type="text" name="route_name" class="form-input-control" placeholder="e.g. Ring Road">
+                    <input type="text" name="route_name" class="form-input-control" placeholder="e.g. Ring Road Link">
                 </div>
 
-                <div class="admin-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="admin-form-grid">
                     <div class="form-field-group">
                         <label>Starting Point</label>
                         <input type="text" name="start_point" class="form-input-control" placeholder="Kalanki" required>
@@ -229,7 +229,7 @@ if ($isAdmin) {
                     <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop 1, Stop 2, Stop 3..." required></textarea>
                 </div>
 
-                <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Publish Route</button>
+                <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; margin-top: 1rem;">Publish Route Directly</button>
             </form>
         </div>
 

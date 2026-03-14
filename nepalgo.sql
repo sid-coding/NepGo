@@ -59,5 +59,5 @@ CREATE TABLE `stops` (
   KEY `route_id` (`route_id`),
   CONSTRAINT `stops_ibfk_1` FOREIGN KEY (`route_id`) REFERENCES `routes` (`route_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+ 
 COMMIT;
