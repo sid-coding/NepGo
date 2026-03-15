@@ -35,7 +35,7 @@
 
         <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
             <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Contact Information</h3>
-            <p style="color: var(--text-gray);">For inquiries or feedback, please email us at contact@nepalgo.com</p>
+            <p style="color: var(--text-gray);">For inquiries or feedback, please email us at <a href="siddhantnakarmi57@gmail.com">siddhantnakarmi57@gmail.com</a> or   <a href="tel:+977980000000">980000000</a></p>
         </div>
     </div>
 </div>
