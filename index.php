@@ -13,7 +13,7 @@
 
 <?php include 'navbar.php'; ?>
 
-<!-- Hero Section -->
+<!-- This is the top banner where users search for buses -->
 <header class="home-banner-section">
     <div class="banner-content">
         <h1 class="banner-title">Find Your Way Around Kathmandu</h1>
@@ -33,7 +33,7 @@
     </div>
 </header>
 
-<!-- Features Section -->
+<!-- This section explains the features of NepalGo -->
 <section class="services-section">
     <div class="services-grid-layout">
         <div class="service-info-box">
@@ -55,7 +55,7 @@
     </div>
 </section>
 
-<!-- Contribution CTA -->
+<!-- This part encourages users to help us by adding more routes -->
 <section style="background-color: #EEF2FF; padding: 5rem 1.5rem; text-align: center;">
     <div style="max-width: 800px; margin: 0 auto;">
         <h2 style="font-size: 2.25rem; color: #312E81; margin-bottom: 1rem;">Know a route we missed?</h2>
