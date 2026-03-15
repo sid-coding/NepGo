@@ -96,12 +96,16 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.1">
+    <link rel="stylesheet" href="style.css?v=2.0">
     <script>
         function toggleNewBusFields() {
             const select = document.getElementById('bus_id');
             const newBusSection = document.getElementById('new_bus_fields');
-            newBusSection.style.display = (select.value === 'new') ? 'block' : 'none';
+            if (select.value === 'new') {
+                newBusSection.style.display = 'block';
+            } else {
+                newBusSection.style.display = 'none';
+            }
         }
     </script>
 </head>
@@ -113,8 +117,8 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
     <div class="section-header">
         <h1>Contributor Dashboard</h1>
         <p>Logged in as: <strong><?= htmlspecialchars($currentUser) ?></strong></p>
-        <div style="margin-top: 1.5rem;">
-            <a href="logout.php" class="action-btn" style="background-color: #ef4444; color: white; border-radius: var(--radius-md);">Logout</a>
+        <div style="margin-top: 1rem;">
+            <a href="logout.php" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>
         </div>
     </div>
 
@@ -124,8 +128,8 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
         </div>
     <?php endif; ?>
 
-    <div class="management-area-box" style="margin-bottom: 4rem; max-width: 900px;">
-        <h2 style="margin-bottom: 2rem; font-size: 1.75rem; font-weight: 800; color: var(--primary-color);">Suggest a New Route</h2>
+    <div class="management-area-box" style="margin-bottom: 4rem;">
+        <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Suggest a New Route</h2>
         <form method="POST">
             <div class="form-field-group">
                 <label>Select Bus</label>
@@ -138,7 +142,7 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
                 </select>
             </div>
 
-            <div id="new_bus_fields" style="display: none; background: #f8fafc; padding: 2rem; border-radius: var(--radius-md); border: 2px dashed var(--border-color); margin-bottom: 2rem;">
+            <div id="new_bus_fields" style="display: none; background: #f9fafb; padding: 1.5rem; border-radius: 4px; border: 1px dashed #ccc; margin-bottom: 1.5rem;">
                 <div class="admin-form-grid">
                     <div class="form-field-group">
                         <label>Bus Number</label>
@@ -153,7 +157,7 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
 
             <div class="form-field-group">
                 <label>Route Name (Optional)</label>
-                <input type="text" name="route_name" class="form-input-control" placeholder="e.g. Ring Road Link">
+                <input type="text" name="route_name" class="form-input-control" placeholder="e.g. Ring Road">
             </div>
 
             <div class="admin-form-grid">
@@ -176,7 +180,7 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
                 <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop 1, Stop 2, Stop 3..." required></textarea>
             </div>
 
-            <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1.25rem; font-size: 1.1rem; margin-top: 1rem;">Submit Route for Review</button>
+            <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Submit Route for Review</button>
         </form>
     </div>
 
