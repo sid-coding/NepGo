@@ -1,6 +1,4 @@
-/* ===============================================
-   1. GLOBAL STYLES & VARIABLES
-=============================================== */
+/* GLOBAL STYLES & VARIABLES */
 :root {
     --primary-color: #004aad;
     --primary-dark: #003087;
@@ -52,9 +50,7 @@ button {
     cursor: pointer;
 }
 
-/* ===============================================
-   2. NAVIGATION BAR
-=============================================== */
+/* NAVIGATION BAR */
 .main-navigation {
     background-color: var(--card-bg);
     position: sticky;
@@ -101,9 +97,7 @@ button {
     border: none;
 }
 
-/* ===============================================
-   3. HOME BANNER (HERO)
-=============================================== */
+/* HOME BANNER (HERO) */
 .home-banner-section {
     background-color: var(--primary-color);
     background-image: 
@@ -113,7 +107,6 @@ button {
     padding: 10rem 1.5rem;
     text-align: center;
     position: relative;
-    /* Removed overflow: hidden to prevent clipping dropdowns */
 }
 
 .banner-title {
@@ -154,7 +147,7 @@ button {
 .form-input-group {
     flex: 1;
     min-width: 200px;
-    position: relative; /* Needed for absolute positioning of suggestions */
+    position: relative; 
 }
 
 .suggestions-dropdown {
@@ -167,13 +160,13 @@ button {
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-strong);
     z-index: 9999;
-    max-height: 160px; /* Decreased height to fit better */
+    max-height: 160px; 
     overflow-y: auto;
     display: none;
 }
 
 .suggestion-item {
-    padding: 0.6rem 1rem; /* More compact items */
+    padding: 0.6rem 1rem; 
     cursor: pointer;
     border-bottom: 1px solid var(--border-light);
     font-size: 0.9rem;
@@ -219,9 +212,7 @@ button {
     background-color: var(--accent-hover);
 }
 
-/* ===============================================
-   4. SERVICES HIGHLIGHTS
-=============================================== */
+/* SERVICES HIGHLIGHTS */
 .services-section {
     padding: 3rem 1.5rem;
     max-width: 1200px;
@@ -259,9 +250,6 @@ button {
     color: var(--text-muted);
 }
 
-/* ===============================================
-   5. SEARCH RESULTS & FLEET
-=============================================== */
 .results-display-area {
     padding: 2rem 1.5rem;
     max-width: 1200px;
@@ -373,7 +361,6 @@ button {
     margin-left: 0.25rem;
 }
 
-/* Indicators */
 .price-tag {
     background-color: #FEF3C7;
     color: #92400E;
@@ -392,9 +379,6 @@ button {
     font-size: 0.8rem;
 }
 
-/* ===============================================
-   6. SITE FOOTER
-=============================================== */
 .footer {
     background-color: #1F2937;
     color: #9CA3AF;
@@ -412,9 +396,6 @@ button {
     font-size: 0.875rem;
 }
 
-/* ===============================================
-   7. SHARED LAYOUT UTILITIES
-=============================================== */
 .content-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -431,9 +412,6 @@ button {
     color: var(--text-main);
 }
 
-/* ===============================================
-   8. DASHBOARD & FORMS
-=============================================== */
 .management-area-box, .about-page-card {
     background: white;
     padding: 2rem;
@@ -519,9 +497,6 @@ button {
     text-transform: uppercase;
 }
 
-/* ===============================================
-   9. RESPONSIVE QUERIES
-=============================================== */
 @media (max-width: 768px) {
     .nav-content-wrapper { padding: 0.75rem 1.5rem; }
     .mobile-menu-toggle { display: block; }

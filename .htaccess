@@ -9,3 +9,5 @@ RewriteRule ^user-dashboard$ user_dashboard.php [L]
 # Standard User Routes
 RewriteRule ^login$ login.php [L]
 RewriteRule ^signup$ signup.php [L]
+RewriteRule ^logout$ logout.php [L]
+RewriteRule ^index$ index.php [L]

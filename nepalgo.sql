@@ -1,15 +1,7 @@
--- NepalGo Database Export
--- Database: nepalgo
-
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
--- --------------------------------------------------------
-
---
--- Table structure for table `users`
---
 CREATE TABLE `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
@@ -20,9 +12,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Table structure for table `buses`
---
 CREATE TABLE `buses` (
   `bus_id` int(11) NOT NULL AUTO_INCREMENT,
   `bus_number` varchar(20) NOT NULL,
@@ -32,9 +21,6 @@ CREATE TABLE `buses` (
   UNIQUE KEY `bus_number` (`bus_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Table structure for table `routes`
---
 CREATE TABLE `routes` (
   `route_id` int(11) NOT NULL AUTO_INCREMENT,
   `bus_id` int(11) DEFAULT NULL,
@@ -47,9 +33,6 @@ CREATE TABLE `routes` (
   CONSTRAINT `routes_ibfk_1` FOREIGN KEY (`bus_id`) REFERENCES `buses` (`bus_id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Table structure for table `stops`
---
 CREATE TABLE `stops` (
   `stop_id` int(11) NOT NULL AUTO_INCREMENT,
   `route_id` int(11) DEFAULT NULL,

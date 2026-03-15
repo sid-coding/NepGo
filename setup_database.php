@@ -1,8 +1,4 @@
 <?php
-/**
- * NepalGo - Master Database Setup (Email Auth Version)
- */
-
 require_once 'config.php';
 
 try {
@@ -20,7 +16,6 @@ try {
 
     echo "<h3>2. Creating fresh tables...</h3>";
 
-    // Users Table (Added Email)
     $pdo->exec("CREATE TABLE users (
         user_id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL UNIQUE,
@@ -31,7 +26,6 @@ try {
     )");
     echo "✅ Users table ready.<br>";
 
-    // Buses Table
     $pdo->exec("CREATE TABLE buses (
         bus_id INT AUTO_INCREMENT PRIMARY KEY,
         bus_number VARCHAR(20) NOT NULL UNIQUE,
@@ -40,7 +34,6 @@ try {
     )");
     echo "✅ Buses table ready.<br>";
 
-    // Routes Table
     $pdo->exec("CREATE TABLE routes (
         route_id INT AUTO_INCREMENT PRIMARY KEY,
         bus_id INT,
@@ -53,7 +46,6 @@ try {
     )");
     echo "✅ Routes table ready.<br>";
 
-    // Stops Table
     $pdo->exec("CREATE TABLE stops (
         stop_id INT AUTO_INCREMENT PRIMARY KEY,
         route_id INT,
@@ -65,14 +57,12 @@ try {
 
     $pdo->exec("SET FOREIGN_KEY_CHECKS = 1;");
 
-    // 3. Create Default Admin (Email: admin@nepalgo.com, Pass: admin123)
     echo "<h3>3. Creating Master Admin...</h3>";
     $hashedPassword = password_hash('admin123', PASSWORD_DEFAULT);
     $stmt = $pdo->prepare("INSERT INTO users (username, email, password, is_approved) VALUES (?, ?, ?, ?)");
     $stmt->execute(['admin', 'admin@nepalgo.com', $hashedPassword, 1]);
     echo "✅ Master Admin created (Email: <b>admin@nepalgo.com</b>).<br>";
 
-    // 4. Seed 18 Real Routes
     echo "<h3>4. Seeding 18 Real-Life Routes...</h3>";
     $pdo->beginTransaction();
     $stopStmt = $pdo->prepare("INSERT INTO stops (route_id, stop_name, stop_order) VALUES (?, ?, ?)");
@@ -115,7 +105,7 @@ try {
 
     echo "<hr>";
     echo "<h2>🎉 SYSTEM READY!</h2>";
-    echo "<p>Go to <a href='index.php'>Home Page</a> or <a href='login.php'>Login</a>.</p>";
+    echo "<p>Go to <a href='index'>Home Page</a> or <a href='login'>Login</a>.</p>";
 
 } catch (Exception $e) {
     if (isset($pdo) && $pdo->inTransaction()) $pdo->rollBack();

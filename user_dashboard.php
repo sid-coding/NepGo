@@ -4,9 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 require_once 'config.php';
 
-// Authentication Check
 if (!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: login');
     exit;
 }
 
@@ -14,7 +13,6 @@ $msg = '';
 $msgType = '';
 $currentUser = $_SESSION['username'];
 
-// Form Submission Logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bus_id      = $_POST['bus_id'] ?? ''; 
     $bus_number  = strtoupper(trim($_POST['bus_number'] ?? '')); 
@@ -46,14 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            // Regular user submissions are NEVER approved by default
             $stmt = $pdo->prepare("INSERT INTO routes (bus_id, route_name, start_point, end_point, distance_km, is_approved) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt->execute([$bus_id, $route_name, $start_point, $end_point, $distance, 0]);
             $route_id = $pdo->lastInsertId();
 
             $stops = array_filter(array_map('trim', explode(',', $stops_raw)));
             
-            // CRITICAL: Ensure start and end points are in the stops list for searching
             if (!in_array($start_point, $stops)) array_unshift($stops, $start_point);
             if (!in_array($end_point, $stops)) $stops[] = $end_point;
 
@@ -118,7 +114,7 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
         <h1>Contributor Dashboard</h1>
         <p>Logged in as: <strong><?= htmlspecialchars($currentUser) ?></strong></p>
         <div style="margin-top: 1rem;">
-            <a href="logout.php" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>
+            <a href="logout" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>
         </div>
     </div>
 

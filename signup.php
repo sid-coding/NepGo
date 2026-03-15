@@ -1,44 +1,34 @@
 <?php
-// Starting the session so we can handle user logins later
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Connecting to the database
 require_once 'config.php';
 
 $success = '';
 $error = '';
 
-// This part runs when the user clicks the 'Sign Up' button
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
     $email    = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    // Making sure no fields are empty
     if (empty($username) || empty($email) || empty($password)) {
         $error = "Please fill all required fields.";
-    // Checking if the passwords match
     } elseif ($password !== $confirm_password) {
         $error = "Passwords do not match.";
-    // Validating the email format
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error = "Invalid email format.";
-    // Forcing a minimum length for the password for security
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters long.";
     } else {
-        // Checking if the username or email is already taken
         $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ? OR email = ?");
         $stmt->execute([$username, $email]);
         if ($stmt->fetchColumn() > 0) {
             $error = "Username or Email is already taken.";
         } else {
-            // Hashing the password so it's not stored in plain text
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
             
-            // Saving the new user to the database
             $stmt = $pdo->prepare("INSERT INTO users (username, email, password, is_approved) VALUES (?, ?, ?, ?)");
             if ($stmt->execute([$username, $email, $hashedPassword, 1])) {
                 $success = "Registration successful! You can now login to add routes.";
@@ -70,12 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Create an account to suggest new bus routes and help improve public transport.</p>
     </div>
 
-    <!-- Showing any registration errors -->
     <?php if ($error !== ''): ?>
         <div class="status-alert alert-danger"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <!-- Showing a success message after a successful registration -->
     <?php if ($success !== ''): ?>
         <div class="status-alert alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>

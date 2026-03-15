@@ -1,30 +1,23 @@
 <?php
-// Starting the session so we can keep the user logged in as they browse
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-// Connecting to the database
 require_once 'config.php';
 
 $error = '';
 
-// Checking if the login form was submitted
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
 
-    // Making sure the user didn't leave any fields empty
     if (empty($email) || empty($password)) {
         $error = "Please enter both email and password.";
     } else {
-        // Looking for the user in the database using their email
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verifying if the user exists and the password is correct
         if ($user && password_verify($password, $user['password'])) {
-            // Only let them in if an admin has approved their account
             if ($user['is_approved'] == 1) {
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['username'];
@@ -34,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = "Your account is pending approval by an admin.";
             }
         } else {
-            // Show this if the email or password doesn't match
             $error = "Invalid email or password.";
         }
     }
@@ -61,7 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p>Login to your account to add new routes or manage buses.</p>
     </div>
 
-    <!-- Showing any login errors here -->
     <?php if ($error !== ''): ?>
         <div class="status-alert alert-danger"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>

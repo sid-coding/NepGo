@@ -1,16 +1,11 @@
 <?php
-// Bringing in the database connection and the fare/time functions
 require_once 'config.php';
 
-// Getting the 'From' and 'To' values from the search URL
 $from = trim($_GET['from'] ?? '');
 $to   = trim($_GET['to'] ?? '');
 $routes = [];
 
-// If both fields are filled, we start the search
 if (!empty($from) && !empty($to)) {
-    // This SQL query finds buses that pass through both the start and destination points
-    // It also checks if the start point comes before the destination in the bus route
     $stmt = $pdo->prepare("
         SELECT r.route_id, b.bus_name, b.bus_image,
                r.start_point, r.end_point, r.distance_km,
@@ -63,7 +58,6 @@ if (!empty($from) && !empty($to)) {
         <p>Find the best way to reach your destination.</p>
     </div>
 
-    <!-- The search form again so the user can easily search something else -->
     <div class="bus-search-area" style="margin-bottom: 3rem;">
         <form class="search-form-wrapper" action="search.php" method="GET">
             <div class="form-input-group">
@@ -84,15 +78,12 @@ if (!empty($from) && !empty($to)) {
                 <div class="results-list-grid">
                     <?php foreach ($routes as $index => $route): ?>
                         <?php 
-                            // Using our helper functions to calculate the price and time
                             $fare = calculateFare($route['distance_km']);
                             $time = estimateTime($route['distance_km']);
                             $stops = explode(',', $route['stops']);
                             
-                            // Using a default image if the bus doesn't have one
                             $imgSrc = $route['bus_image'] ? "assets/images/{$route['bus_image']}" : 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=500&q=60';
                         ?>
-                        <!-- Displaying each bus route in a nice card -->
                         <div class="bus-result-card">
                             <img src="<?= htmlspecialchars($imgSrc) ?>" alt="<?= htmlspecialchars($route['bus_name']) ?>" class="bus-image-preview">
                             <div class="bus-card-details">
@@ -113,7 +104,6 @@ if (!empty($from) && !empty($to)) {
                                     <p><strong>Distance:</strong> <?= $route['distance_km'] ?> km</p>
                                 </div>
 
-                                <!-- Clicking this shows all the stops for this route -->
                                 <button class="toggle-stops-action" onclick="toggleStops(this)">
                                     Show <?= count($stops) ?> Stops
                                 </button>
@@ -128,7 +118,6 @@ if (!empty($from) && !empty($to)) {
                     <?php endforeach; ?>
                 </div>
             <?php else: ?>
-                <!-- Showing this if no buses are found for the search -->
                 <div style="text-align: center; padding: 3rem; background: white; border: 1px solid #eee; border-radius: var(--radius-md);">
                     <p>No routes found for this search.</p>
                 </div>

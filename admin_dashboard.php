@@ -55,8 +55,8 @@ if ($isAdmin) {
 
     // Add New Route Form Submission
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_route'])) {
-        $bus_id      = $_POST['bus_id'] ?? ''; 
-        $bus_number  = strtoupper(trim($_POST['bus_number'] ?? '')); 
+        $bus_id      = $_POST['bus_id'] ?? '';
+        $bus_number  = strtoupper(trim($_POST['bus_number'] ?? ''));
         $bus_name    = trim($_POST['bus_name'] ?? '');
         $route_name  = trim($_POST['route_name'] ?? '');
         $start_point = trim($_POST['start_point'] ?? '');
@@ -70,7 +70,7 @@ if ($isAdmin) {
         } else {
             try {
                 $pdo->beginTransaction();
-                
+
                 // If adding a new bus
                 if ($bus_id === 'new') {
                     $stmt = $pdo->prepare("SELECT bus_id FROM buses WHERE bus_number = ?");
@@ -93,7 +93,7 @@ if ($isAdmin) {
 
                 // Prepare Stops
                 $stops = array_filter(array_map('trim', explode(',', $stops_raw)));
-                
+
                 // CRITICAL: Ensure start and end points are in the stops list for searching
                 if (!in_array($start_point, $stops)) array_unshift($stops, $start_point);
                 if (!in_array($end_point, $stops)) $stops[] = $end_point;
@@ -157,7 +157,7 @@ if ($isAdmin) {
                 <button type="submit" class="action-btn primary-btn" style="width: 100%; margin-top: 1rem; background: #4F46E5;">Login</button>
             </form>
         </div>
-        <p style="text-align: center; margin-top: 2rem;"><a href="index.php" style="color: #6B7280; font-size: 0.9rem;">&larr; Back to Website</a></p>
+        <p style="text-align: center; margin-top: 2rem;"><a href="index" style="color: #6B7280; font-size: 0.9rem;">&larr; Back to Website</a></p>
     </div>
 <?php else: ?>
     <?php include 'navbar.php'; ?>
@@ -166,7 +166,7 @@ if ($isAdmin) {
             <h1>Master Admin Dashboard</h1>
             <p>Welcome back, Administrator.</p>
             <div style="margin-top: 1rem;">
-                <a href="logout.php" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>
+                <a href="logout" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>       
             </div>
         </div>
 
@@ -181,7 +181,7 @@ if ($isAdmin) {
                     <label>Select Bus</label>
                     <select name="bus_id" id="bus_id" class="form-input-control" onchange="toggleNewBusFields()" required>
                         <option value="">-- Select --</option>
-                        <?php 
+                        <?php
                         $buses = $pdo->query("SELECT * FROM buses ORDER BY bus_name ASC")->fetchAll();
                         foreach ($buses as $bus) {
                             echo "<option value='{$bus['bus_id']}'>" . htmlspecialchars($bus['bus_name']) . " (" . htmlspecialchars($bus['bus_number']) . ")</option>";
@@ -209,7 +209,7 @@ if ($isAdmin) {
                     <input type="text" name="route_name" class="form-input-control" placeholder="e.g. Ring Road">
                 </div>
 
-                <div class="admin-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="admin-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">  
                     <div class="form-field-group">
                         <label>Starting Point</label>
                         <input type="text" name="start_point" class="form-input-control" placeholder="Kalanki" required>
@@ -226,7 +226,7 @@ if ($isAdmin) {
 
                 <div class="form-field-group">
                     <label>List of Stops (Comma Separated)</label>
-                    <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop 1, Stop 2, Stop 3..." required></textarea>
+                    <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop 1, Stop 2, Stop 3..." required></textarea>   
                 </div>
 
                 <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Publish Route</button>
@@ -239,7 +239,7 @@ if ($isAdmin) {
             <table class="standard-data-table">
                 <thead><tr><th>Bus</th><th>Path</th><th>Action</th></tr></thead>
                 <tbody>
-                    <?php 
+                    <?php
                     $pending = $pdo->query("SELECT r.*, b.bus_name FROM routes r JOIN buses b ON r.bus_id = b.bus_id WHERE r.is_approved = 0")->fetchAll();
                     if (count($pending) > 0):
                         foreach ($pending as $r): ?>
@@ -247,11 +247,11 @@ if ($isAdmin) {
                                 <td><?= htmlspecialchars($r['bus_name']) ?></td>
                                 <td><?= htmlspecialchars($r['start_point']) ?> - <?= htmlspecialchars($r['end_point']) ?></td>
                                 <td>
-                                    <a href="?approve_route=<?= $r['route_id'] ?>" style="color: green; font-weight: 600;">Approve</a> | 
+                                    <a href="?approve_route=<?= $r['route_id'] ?>" style="color: green; font-weight: 600;">Approve</a> |      
                                     <a href="?reject_route=<?= $r['route_id'] ?>" style="color: red; font-weight: 600;" onclick="return confirm('Reject this suggestion?')">Reject</a>
                                 </td>
                             </tr>
-                        <?php endforeach; 
+                        <?php endforeach;
                     else: ?>
                         <tr><td colspan="3" style="text-align:center; padding: 2rem;">No pending suggestions.</td></tr>
                     <?php endif; ?>
@@ -265,7 +265,7 @@ if ($isAdmin) {
             <table class="standard-data-table">
                 <thead><tr><th>Bus Number</th><th>Path</th><th>Action</th></tr></thead>
                 <tbody>
-                    <?php 
+                    <?php
                     $live = $pdo->query("SELECT r.*, b.bus_number FROM routes r JOIN buses b ON r.bus_id = b.bus_id WHERE r.is_approved = 1 ORDER BY r.route_id DESC")->fetchAll();
                     foreach ($live as $r): ?>
                         <tr>
