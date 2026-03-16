@@ -2,6 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Prevent browser caching
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once 'config.php';
 
 // --- 1. HANDLE ADMIN LOGIN ---
@@ -17,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['admin_login'])) {
     if ($user && password_verify($password, $user['password'])) {
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['username'] = $user['username'];
+        // Remove login step from history
+        echo "<script>window.location.replace('admin-dashboard');</script>";
+        exit;
     } else {
         $error = "Invalid Admin Credentials.";
     }
@@ -33,24 +42,96 @@ if ($isAdmin) {
     if (isset($_GET['approve_route'])) {
         $rid = intval($_GET['approve_route']);
         $pdo->prepare("UPDATE routes SET is_approved = 1 WHERE route_id = ?")->execute([$rid]);
-        $msg = "Route approved successfully!";
-        $msgType = "success";
+        $_SESSION['msg'] = "Route approved successfully!";
+        $_SESSION['msgType'] = "success";
+        header("Location: admin-dashboard");
+        exit;
     }
 
     // Reject Route
     if (isset($_GET['reject_route'])) {
         $rid = intval($_GET['reject_route']);
         $pdo->prepare("DELETE FROM routes WHERE route_id = ?")->execute([$rid]);
-        $msg = "Route suggestion rejected.";
-        $msgType = "success";
+        $_SESSION['msg'] = "Route suggestion rejected.";
+        $_SESSION['msgType'] = "success";
+        header("Location: admin-dashboard");
+        exit;
+    }
+
+    // Handle Route Editing Form Submission
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_route'])) {
+        $route_id    = intval($_POST['route_id']);
+        $bus_id      = intval($_POST['bus_id']);
+        $bus_number  = strtoupper(trim($_POST['bus_number'] ?? ''));
+        $bus_name    = trim($_POST['bus_name'] ?? '');
+        $route_name  = trim($_POST['route_name'] ?? '');
+        $start_point = trim($_POST['start_point'] ?? '');
+        $end_point   = trim($_POST['end_point'] ?? '');
+        $stops_raw   = trim($_POST['stops'] ?? '');
+        $distance    = floatval($_POST['distance'] ?? 0);
+
+        try {
+            $pdo->beginTransaction();
+
+            // 1. Update Bus Details
+            $stmt = $pdo->prepare("UPDATE buses SET bus_number = ?, bus_name = ? WHERE bus_id = ?");
+            $stmt->execute([$bus_number, $bus_name, $bus_id]);
+
+            // 2. Update Route Details
+            $stmt = $pdo->prepare("UPDATE routes SET route_name = ?, start_point = ?, end_point = ?, distance_km = ? WHERE route_id = ?");
+            $stmt->execute([$route_name, $start_point, $end_point, $distance, $route_id]);
+
+            // 3. Update Stops
+            $pdo->prepare("DELETE FROM stops WHERE route_id = ?")->execute([$route_id]);
+            $stops_parts = array_filter(array_map('trim', explode(',', $stops_raw)));
+            
+            $stmt = $pdo->prepare("INSERT INTO stops (route_id, stop_name, distance_from_start, stop_order) VALUES (?, ?, ?, ?)");
+            $order = 1;
+            foreach ($stops_parts as $part) {
+                if ($part !== '') {
+                    $details = explode(':', $part);
+                    $name = trim($details[0]);
+                    $dist = isset($details[1]) ? floatval(trim($details[1])) : 0.0;
+                    $stmt->execute([$route_id, $name, $dist, $order++]);
+                }
+            }
+
+            $pdo->commit();
+            $_SESSION['msg'] = "Route updated successfully!";
+            $_SESSION['msgType'] = "success";
+            header("Location: admin-dashboard");
+            exit;
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $msg = "Error: " . $e->getMessage();
+            $msgType = "danger";
+        }
+    }
+
+    // Fetch Route for Editing
+    $editData = null;
+    if (isset($_GET['edit_route'])) {
+        $erid = intval($_GET['edit_route']);
+        $stmt = $pdo->prepare("SELECT r.*, b.bus_number, b.bus_name FROM routes r JOIN buses b ON r.bus_id = b.bus_id WHERE r.route_id = ?");
+        $stmt->execute([$erid]);
+        $editData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($editData) {
+            $stmt = $pdo->prepare("SELECT CONCAT(stop_name, ':', distance_from_start) as stop_info FROM stops WHERE route_id = ? ORDER BY stop_order ASC");
+            $stmt->execute([$erid]);
+            $stops = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $editData['stops_list'] = implode(', ', $stops);
+        }
     }
 
     // Approve User
     if (isset($_GET['approve_user'])) {
         $uid = intval($_GET['approve_user']);
         $pdo->prepare("UPDATE users SET is_approved = 1 WHERE user_id = ?")->execute([$uid]);
-        $msg = "User account approved!";
-        $msgType = "success";
+        $_SESSION['msg'] = "User account approved!";
+        $_SESSION['msgType'] = "success";
+        header("Location: admin-dashboard");
+        exit;
     }
 
     // Add New Route Form Submission
@@ -92,23 +173,24 @@ if ($isAdmin) {
                 $route_id = $pdo->lastInsertId();
 
                 // Prepare Stops
-                $stops = array_filter(array_map('trim', explode(',', $stops_raw)));
+                $stops_parts = array_filter(array_map('trim', explode(',', $stops_raw)));
 
-                // CRITICAL: Ensure start and end points are in the stops list for searching
-                if (!in_array($start_point, $stops)) array_unshift($stops, $start_point);
-                if (!in_array($end_point, $stops)) $stops[] = $end_point;
-
-                $stmt = $pdo->prepare("INSERT INTO stops (route_id, stop_name, stop_order) VALUES (?, ?, ?)");
+                $stmt = $pdo->prepare("INSERT INTO stops (route_id, stop_name, distance_from_start, stop_order) VALUES (?, ?, ?, ?)");
                 $order = 1;
-                foreach ($stops as $stop) {
-                    if ($stop !== '') {
-                        $stmt->execute([$route_id, $stop, $order++]);
+                foreach ($stops_parts as $part) {
+                    if ($part !== '') {
+                        $details = explode(':', $part);
+                        $name = trim($details[0]);
+                        $dist = isset($details[1]) ? floatval(trim($details[1])) : 0.0;
+                        $stmt->execute([$route_id, $name, $dist, $order++]);
                     }
                 }
 
                 $pdo->commit();
-                $msg = "Route added and published successfully!";
-                $msgType = "success";
+                $_SESSION['msg'] = "Route added and published successfully!";
+                $_SESSION['msgType'] = "success";
+                header("Location: admin-dashboard");
+                exit;
             } catch (Exception $e) {
                 if ($pdo->inTransaction()) $pdo->rollBack();
                 $msg = "Error: " . $e->getMessage();
@@ -116,6 +198,13 @@ if ($isAdmin) {
             }
         }
     }
+}
+
+// Display Messages from Session
+if (isset($_SESSION['msg'])) {
+    $msg = $_SESSION['msg'];
+    $msgType = $_SESSION['msgType'];
+    unset($_SESSION['msg'], $_SESSION['msgType']);
 }
 ?>
 <!DOCTYPE html>
@@ -225,8 +314,8 @@ if ($isAdmin) {
                 </div>
 
                 <div class="form-field-group">
-                    <label>List of Stops (Comma Separated)</label>
-                    <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop 1, Stop 2, Stop 3..." required></textarea>   
+                    <label>List of Stops (Format: StopName:CumulativeDistance, ...)</label>
+                    <textarea name="stops" class="form-input-control" rows="3" placeholder="Kalanki:0, Kalimati:2.5, Teku:4.1, Tripureshwor:5.2, Ratnapark:6.0" required></textarea>   
                 </div>
 
                 <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Publish Route</button>
@@ -260,6 +349,58 @@ if ($isAdmin) {
         </div>
 
         <!-- 3. LIVE ROUTES -->
+        <?php if ($editData): ?>
+        <div id="edit-section" class="management-area-box" style="margin-bottom: 4rem; border: 2px solid #4F46E5;">
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: #4F46E5;">Edit Route & Bus Details</h2>
+            <form method="POST">
+                <input type="hidden" name="update_route" value="1">
+                <input type="hidden" name="route_id" value="<?= $editData['route_id'] ?>">
+                <input type="hidden" name="bus_id" value="<?= $editData['bus_id'] ?>">
+                
+                <div class="admin-form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div class="form-field-group">
+                        <label>Bus Number</label>
+                        <input type="text" name="bus_number" class="form-input-control" value="<?= htmlspecialchars($editData['bus_number']) ?>" required>
+                    </div>
+                    <div class="form-field-group">
+                        <label>Bus Name</label>
+                        <input type="text" name="bus_name" class="form-input-control" value="<?= htmlspecialchars($editData['bus_name']) ?>" required>
+                    </div>
+                </div>
+
+                <div class="form-field-group">
+                    <label>Route Name (Optional)</label>
+                    <input type="text" name="route_name" class="form-input-control" value="<?= htmlspecialchars($editData['route_name']) ?>">
+                </div>
+
+                <div class="admin-form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1rem;">  
+                    <div class="form-field-group">
+                        <label>Starting Point</label>
+                        <input type="text" name="start_point" class="form-input-control" value="<?= htmlspecialchars($editData['start_point']) ?>" required>
+                    </div>
+                    <div class="form-field-group">
+                        <label>Destination</label>
+                        <input type="text" name="end_point" class="form-input-control" value="<?= htmlspecialchars($editData['end_point']) ?>" required>
+                    </div>
+                    <div class="form-field-group">
+                        <label>Distance (KM)</label>
+                        <input type="number" step="0.1" name="distance" class="form-input-control" value="<?= htmlspecialchars($editData['distance_km']) ?>" required>
+                    </div>
+                </div>
+
+                <div class="form-field-group">
+                    <label>List of Stops (Comma Separated)</label>
+                    <textarea name="stops" class="form-input-control" rows="3" required><?= htmlspecialchars($editData['stops_list']) ?></textarea>   
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="action-btn primary-btn" style="flex: 1; padding: 1rem; background: #4F46E5;">Save Changes</button>
+                    <a href="admin-dashboard" class="action-btn" style="flex: 1; padding: 1rem; background: #9CA3AF; color: white; text-align: center; text-decoration: none; border-radius: 4px;">Cancel</a>
+                </div>
+            </form>
+        </div>
+        <?php endif; ?>
+
         <h2 style="margin-bottom: 1.5rem; color: #10B981;">Live Routes (Registry)</h2>
         <div class="data-table-wrapper">
             <table class="standard-data-table">
@@ -272,6 +413,7 @@ if ($isAdmin) {
                             <td><?= htmlspecialchars($r['bus_number']) ?></td>
                             <td><?= htmlspecialchars($r['start_point']) ?> - <?= htmlspecialchars($r['end_point']) ?></td>
                             <td>
+                                <a href="?edit_route=<?= $r['route_id'] ?>" style="color: #4F46E5; font-weight: 600; margin-right: 10px;">Edit</a>
                                 <a href="?reject_route=<?= $r['route_id'] ?>" onclick="return confirm('Permanently delete this live route?')" style="color: red; font-weight: 600;">Delete</a>
                             </td>
                         </tr>

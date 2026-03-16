@@ -3,6 +3,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Global Cache-Control to prevent "Back" button showing logged-in state after logout
+if (!headers_sent()) {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Cache-Control: post-check=0, pre-check=0", false);
+    header("Pragma: no-cache");
+}
+
     $DB_HOST = '127.0.0.1';
     $DB_NAME = 'nepalgo';
     $DB_USER = 'root';

@@ -2,7 +2,20 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Prevent browser caching
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once 'config.php';
+
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    $target = ($_SESSION['username'] === 'admin') ? 'admin-dashboard' : 'user-dashboard';
+    header("Location: $target");
+    exit;
+}
 
 $error = '';
 
@@ -21,7 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user['is_approved'] == 1) {
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['username'] = $user['username'];
-                header('Location: user-dashboard');
+                // Use JS replace to remove login page from history
+                echo "<script>window.location.replace('user-dashboard');</script>";
                 exit;
             } else {
                 $error = "Your account is pending approval by an admin.";

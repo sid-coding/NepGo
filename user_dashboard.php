@@ -2,6 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Prevent browser caching
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+
 require_once 'config.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -48,28 +54,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$bus_id, $route_name, $start_point, $end_point, $distance, 0]);
             $route_id = $pdo->lastInsertId();
 
-            $stops = array_filter(array_map('trim', explode(',', $stops_raw)));
+            $stops_parts = array_filter(array_map('trim', explode(',', $stops_raw)));
             
-            if (!in_array($start_point, $stops)) array_unshift($stops, $start_point);
-            if (!in_array($end_point, $stops)) $stops[] = $end_point;
-
-            $stmt = $pdo->prepare("INSERT INTO stops (route_id, stop_name, stop_order) VALUES (?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO stops (route_id, stop_name, distance_from_start, stop_order) VALUES (?, ?, ?, ?)");
             $order = 1;
-            foreach ($stops as $stop) {
-                if ($stop !== '') {
-                    $stmt->execute([$route_id, $stop, $order++]);
+            foreach ($stops_parts as $part) {
+                if ($part !== '') {
+                    $details = explode(':', $part);
+                    $name = trim($details[0]);
+                    $dist = isset($details[1]) ? floatval(trim($details[1])) : 0.0;
+                    $stmt->execute([$route_id, $name, $dist, $order++]);
                 }
             }
 
             $pdo->commit();
-            $msg = "Route submitted! It will be live after admin approval.";
-            $msgType = "success";
+            $_SESSION['msg'] = "Route submitted! It will be live after admin approval.";
+            $_SESSION['msgType'] = "success";
+            header("Location: user-dashboard");
+            exit;
         } catch (Exception $e) {
             $pdo->rollBack();
             $msg = "Error: " . $e->getMessage();
             $msgType = "danger";
         }
     }
+}
+
+// Display Messages from Session
+if (isset($_SESSION['msg'])) {
+    $msg = $_SESSION['msg'];
+    $msgType = $_SESSION['msgType'];
+    unset($_SESSION['msg'], $_SESSION['msgType']);
 }
 
 $allBuses = $pdo->query("SELECT * FROM buses ORDER BY bus_name ASC")->fetchAll(PDO::FETCH_ASSOC);
@@ -172,8 +187,8 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="form-field-group">
-                <label>List of Stops (Comma Separated)</label>
-                <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop 1, Stop 2, Stop 3..." required></textarea>
+                <label>List of Stops (Format: StopName:CumulativeDistance, ...)</label>
+                <textarea name="stops" class="form-input-control" rows="3" placeholder="Kalanki:0, Kalimati:2.5, Teku:4.1, Tripureshwor:5.2, Ratnapark:6.0" required></textarea>
             </div>
 
             <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Submit Route for Review</button>

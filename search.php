@@ -8,21 +8,22 @@ $routes = [];
 if (!empty($from) && !empty($to)) {
     $stmt = $pdo->prepare("
         SELECT r.route_id, b.bus_name, b.bus_image,
-               r.start_point, r.end_point, r.distance_km,
+               r.start_point, r.end_point, r.distance_km as total_distance,
+               s1.distance_from_start as start_dist,
+               s2.distance_from_start as end_dist,
+               (s2.distance_from_start - s1.distance_from_start) as segment_distance,
                GROUP_CONCAT(s.stop_name ORDER BY s.stop_order SEPARATOR ',') AS stops
         FROM routes r
         JOIN buses b ON r.bus_id = b.bus_id
+        JOIN stops s1 ON r.route_id = s1.route_id
+        JOIN stops s2 ON r.route_id = s2.route_id
         JOIN stops s ON r.route_id = s.route_id
-        WHERE r.is_approved = 1 AND r.route_id IN (
-            SELECT s1.route_id 
-            FROM stops s1
-            JOIN stops s2 ON s1.route_id = s2.route_id
-            WHERE s1.stop_name LIKE ? 
-              AND s2.stop_name LIKE ? 
-              AND s2.stop_order > s1.stop_order
-        )
+        WHERE r.is_approved = 1 
+          AND s1.stop_name LIKE ? 
+          AND s2.stop_name LIKE ? 
+          AND s2.stop_order > s1.stop_order
         GROUP BY r.route_id
-        ORDER BY r.distance_km ASC
+        ORDER BY segment_distance ASC
     ");
 
     $stmt->execute(["%$from%", "%$to%"]);
@@ -78,8 +79,9 @@ if (!empty($from) && !empty($to)) {
                 <div class="results-list-grid">
                     <?php foreach ($routes as $index => $route): ?>
                         <?php 
-                            $fare = calculateFare($route['distance_km']);
-                            $time = estimateTime($route['distance_km']);
+                            $segment_km = $route['segment_distance'];
+                            $fare = calculateFare($segment_km);
+                            $time = estimateTime($segment_km);
                             $stops = explode(',', $route['stops']);
                             
                             $imgSrc = $route['bus_image'] ? "assets/images/{$route['bus_image']}" : 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=500&q=60';
@@ -95,13 +97,13 @@ if (!empty($from) && !empty($to)) {
                                 </div>
                                 
                                 <div class="bus-info-list">
-                                    <p><strong>From:</strong> <?= htmlspecialchars($route['start_point']) ?></p>
-                                    <p><strong>To:</strong> <?= htmlspecialchars($route['end_point']) ?></p>
+                                    <p><strong>Journey:</strong> <?= htmlspecialchars($from) ?> &rarr; <?= htmlspecialchars($to) ?></p>
                                     <div style="margin: 10px 0; display: flex; gap: 8px;">
                                         <span class="price-tag">Rs. <?= $fare ?></span>
                                         <span class="time-tag"><?= $time ?> min</span>
                                     </div>
-                                    <p><strong>Distance:</strong> <?= $route['distance_km'] ?> km</p>
+                                    <p><strong>Segment Distance:</strong> <?= number_format($segment_km, 2) ?> km</p>
+                                    <p style="font-size: 0.85rem; color: #666;">(Full Route: <?= htmlspecialchars($route['start_point']) ?> - <?= htmlspecialchars($route['end_point']) ?>)</p>
                                 </div>
 
                                 <button class="toggle-stops-action" onclick="toggleStops(this)">

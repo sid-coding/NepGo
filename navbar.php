@@ -6,13 +6,13 @@ if (session_status() === PHP_SESSION_NONE) {
 <nav class="main-navigation">
     <div class="nav-content-wrapper">
         <div class="logo-brand">
-            <a href="index">NepalGo</a>
+            <a href="index.php">NepalGo</a>
         </div>
         <button class="mobile-menu-toggle" onclick="toggleMenu()" aria-label="Toggle navigation">
             ☰
         </button>
         <ul class="nav-menu-list" id="navLinks">
-            <li><a href="index" class="nav-link-item">Home</a></li>
+            <li><a href="index.php" class="nav-link-item">Home</a></li>
             <li><a href="search.php" class="nav-link-item">Search</a></li>
             <li><a href="fleet.php" class="nav-link-item">Buses</a></li>
             <li><a href="about.php" class="nav-link-item">About</a></li>

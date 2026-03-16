@@ -1,4 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
+    // Force reload when navigating back/forward to ensure session state is accurate
+    window.addEventListener('pageshow', function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    });
+
     const searchInputs = document.querySelectorAll(".search-input-field");
 
     searchInputs.forEach(input => {
