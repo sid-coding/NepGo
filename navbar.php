@@ -1,7 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once 'config.php';
 ?>
 <nav class="main-navigation">
     <div class="nav-content-wrapper">

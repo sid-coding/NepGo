@@ -11,7 +11,7 @@ if (!empty($from) && !empty($to)) {
                r.start_point, r.end_point, r.distance_km as total_distance,
                s1.distance_from_start as start_dist,
                s2.distance_from_start as end_dist,
-               (s2.distance_from_start - s1.distance_from_start) as segment_distance,
+               ABS(s2.distance_from_start - s1.distance_from_start) as segment_distance,
                GROUP_CONCAT(s.stop_name ORDER BY s.stop_order SEPARATOR ',') AS stops
         FROM routes r
         JOIN buses b ON r.bus_id = b.bus_id
@@ -39,7 +39,7 @@ if (!empty($from) && !empty($to)) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2.0">
+    <link rel="stylesheet" href="style.css?v=2.1">
     <style>
         .results-list-grid {
             grid-template-columns: 1fr !important;
@@ -102,7 +102,7 @@ if (!empty($from) && !empty($to)) {
                                         <span class="price-tag">Rs. <?= $fare ?></span>
                                         <span class="time-tag"><?= $time ?> min</span>
                                     </div>
-                                    <p><strong>Segment Distance:</strong> <?= number_format($segment_km, 2) ?> km</p>
+                                    <p><strong>Distance for this trip:</strong> <?= number_format($segment_km, 2) ?> km</p>
                                     <p style="font-size: 0.85rem; color: #666;">(Full Route: <?= htmlspecialchars($route['start_point']) ?> - <?= htmlspecialchars($route['end_point']) ?>)</p>
                                 </div>
 

@@ -3,25 +3,20 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Global Cache-Control to prevent "Back" button showing logged-in state after logout
-if (!headers_sent()) {
-    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-    header("Cache-Control: post-check=0, pre-check=0", false);
-    header("Pragma: no-cache");
-}
+// Prevent browser caching globally
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 
-    $DB_HOST = '127.0.0.1';
-    $DB_NAME = 'nepalgo';
-    $DB_USER = 'root';
-    $DB_PASS = '';
+$DB_HOST = '127.0.0.1';
+$DB_NAME = 'nepalgo';
+$DB_USER = 'root';
+$DB_PASS = '';
 
 try {
-
     $pdo = new PDO("mysql:host=$DB_HOST;dbname=$DB_NAME;charset=utf8mb4", $DB_USER, $DB_PASS);
-
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
-
     die("Database connection failed: " . $e->getMessage());
 }
 

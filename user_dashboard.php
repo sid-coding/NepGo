@@ -1,13 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Prevent browser caching
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-
 require_once 'config.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -73,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: user-dashboard");
             exit;
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) $pdo->rollBack();
             $msg = "Error: " . $e->getMessage();
             $msgType = "danger";
         }
@@ -187,8 +178,8 @@ $routesList = $mySubmissions->fetchAll(PDO::FETCH_ASSOC);
             </div>
 
             <div class="form-field-group">
-                <label>List of Stops (Format: StopName:CumulativeDistance, ...)</label>
-                <textarea name="stops" class="form-input-control" rows="3" placeholder="Kalanki:0, Kalimati:2.5, Teku:4.1, Tripureshwor:5.2, Ratnapark:6.0" required></textarea>
+                <label>List of Stops (Comma Separated)</label>
+                <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop1, Stop2, Stop3" required></textarea>  
             </div>
 
             <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Submit Route for Review</button>

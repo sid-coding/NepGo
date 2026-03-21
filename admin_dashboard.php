@@ -1,13 +1,4 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-// Prevent browser caching
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-
 require_once 'config.php';
 
 // --- 1. HANDLE ADMIN LOGIN ---
@@ -253,7 +244,7 @@ if (isset($_SESSION['msg'])) {
     <div class="content-container">
         <div class="section-header">
             <h1>Master Admin Dashboard</h1>
-            <p>Welcome back, Administrator.</p>
+            <p>Welcome back, Siddhant.</p>
             <div style="margin-top: 1rem;">
                 <a href="logout" class="action-btn" style="background-color: #EF4444; color: white; border-radius: 4px;">Logout</a>       
             </div>
@@ -263,7 +254,7 @@ if (isset($_SESSION['msg'])) {
 
         <!-- 1. ADD NEW ROUTE -->
         <div class="management-area-box" style="margin-bottom: 4rem;">
-            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Add New Route Directly</h2>
+            <h2 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Add New Route</h2>
             <form method="POST">
                 <input type="hidden" name="add_route" value="1">
                 <div class="form-field-group">
@@ -314,8 +305,8 @@ if (isset($_SESSION['msg'])) {
                 </div>
 
                 <div class="form-field-group">
-                    <label>List of Stops (Format: StopName:CumulativeDistance, ...)</label>
-                    <textarea name="stops" class="form-input-control" rows="3" placeholder="Kalanki:0, Kalimati:2.5, Teku:4.1, Tripureshwor:5.2, Ratnapark:6.0" required></textarea>   
+                <label>List of Stops (Comma Separated)</label>
+                <textarea name="stops" class="form-input-control" rows="3" placeholder="Stop1, Stop2, Stop3" required></textarea>  
                 </div>
 
                 <button type="submit" class="action-btn primary-btn" style="width: 100%; padding: 1rem; margin-top: 1rem;">Publish Route</button>
